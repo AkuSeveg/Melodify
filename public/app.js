@@ -15,7 +15,8 @@ function onYouTubeIframeAPIReady() {
         playerVars: {
             'playsinline': 1,
             'controls': 0,
-            'disablekb': 1
+            'disablekb': 1,
+            'autoplay': 1
         },
         events: {
             'onReady': onPlayerReady,
@@ -34,6 +35,7 @@ function onPlayerStateChange(event) {
         isPlaying = true;
         playIcon.className = 'fas fa-pause';
         startProgressBar();
+        setupMediaSession(); // Perbarui sesi media saat mulai memutar
     } else {
         isPlaying = false;
         playIcon.className = 'fas fa-play';
@@ -44,9 +46,13 @@ function onPlayerStateChange(event) {
 const bottomPlayer = document.getElementById('bottomPlayer');
 const playPauseBtn = document.getElementById('playPauseBtn');
 
+let currentTrackInfo = {};
+
 window.playTrack = function(videoId, title, artist, thumb) {
     bottomPlayer.classList.remove('hidden');
     
+    currentTrackInfo = { title, artist, thumb };
+
     document.getElementById('player-title').innerText = title;
     document.getElementById('player-artist').innerText = artist;
     document.getElementById('player-thumb').src = thumb;
@@ -54,27 +60,26 @@ window.playTrack = function(videoId, title, artist, thumb) {
     if (ytPlayer && ytPlayer.loadVideoById) {
         ytPlayer.loadVideoById(videoId);
     }
+}
 
-    if ('mediaSession' in navigator) {
+function setupMediaSession() {
+    if ('mediaSession' in navigator && currentTrackInfo.title) {
         navigator.mediaSession.metadata = new MediaMetadata({
-            title: title,
-            artist: artist,
+            title: currentTrackInfo.title,
+            artist: currentTrackInfo.artist,
             album: 'Melodify',
             artwork: [
-                { src: thumb, sizes: '96x96',   type: 'image/jpeg' },
-                { src: thumb, sizes: '128x128', type: 'image/jpeg' },
-                { src: thumb, sizes: '192x192', type: 'image/jpeg' },
-                { src: thumb, sizes: '256x256', type: 'image/jpeg' },
-                { src: thumb, sizes: '384x384', type: 'image/jpeg' },
-                { src: thumb, sizes: '512x512', type: 'image/jpeg' },
+                { src: currentTrackInfo.thumb, sizes: '96x96',   type: 'image/jpeg' },
+                { src: currentTrackInfo.thumb, sizes: '256x256', type: 'image/jpeg' },
+                { src: currentTrackInfo.thumb, sizes: '512x512', type: 'image/jpeg' }
             ]
         });
 
         navigator.mediaSession.setActionHandler('play', function() {
-            ytPlayer.playVideo();
+            if (ytPlayer) ytPlayer.playVideo();
         });
         navigator.mediaSession.setActionHandler('pause', function() {
-            ytPlayer.pauseVideo();
+            if (ytPlayer) ytPlayer.pauseVideo();
         });
     }
 }
@@ -86,13 +91,6 @@ playPauseBtn.addEventListener('click', () => {
         ytPlayer.pauseVideo();
     } else {
         ytPlayer.playVideo();
-    }
-});
-
-// Auto-play recovery hack untuk Browser HP
-document.addEventListener("visibilitychange", () => {
-    if (!document.hidden && isPlaying === false && ytPlayer) {
-        // Kadang browser memaksa pause saat pindah tab, kita deteksi saat user kembali
     }
 });
 
@@ -167,10 +165,12 @@ async function performSearch() {
                     <img src="${track.thumbnail}" alt="${safeTitle}" class="track-img" loading="lazy">
                     <span class="duration-badge">${track.duration.timestamp}</span>
                 </div>
-                <div class="track-title" title="${safeTitle}">${track.title}</div>
-                <div class="track-artist">${track.artist}</div>
+                <div class="track-info">
+                    <div class="track-title" title="${safeTitle}">${track.title}</div>
+                    <div class="track-artist">${track.artist}</div>
+                </div>
                 <button onclick="playTrack('${track.id}', '${safeTitle}', '${safeArtist}', '${track.thumbnail}')" class="play-btn">
-                    <i class="fas fa-play"></i>
+                    <i class="fas fa-play"></i><span>Putar Lagu</span>
                 </button>
             `;
             resultsGrid.appendChild(card);
@@ -188,9 +188,11 @@ function showSkeletons() {
         card.className = 'track-card skeleton';
         card.innerHTML = `
             <div class="thumbnail-wrapper"></div>
-            <div class="track-title"></div>
-            <div class="track-artist"></div>
-            <div class="play-btn"></div>
+            <div class="track-info">
+                <div class="track-title"></div>
+                <div class="track-artist"></div>
+            </div>
+            <div class="play-btn" style="border: none;"></div>
         `;
         resultsGrid.appendChild(card);
     }
@@ -198,9 +200,9 @@ function showSkeletons() {
 
 function showError(msg) {
     resultsGrid.innerHTML = `
-        <div style="grid-column: 1/-1; text-align: center; padding: 60px 0;">
-            <i class="fas fa-exclamation-triangle" style="font-size: 3.5rem; color: var(--text-secondary); margin-bottom: 20px;"></i>
-            <h3 style="color: var(--text-primary); font-weight: 500; font-size: 1.2rem;">${msg}</h3>
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px 0;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 15px;"></i>
+            <h3 style="color: var(--text-primary); font-weight: 500; font-size: 1.1rem;">${msg}</h3>
         </div>
     `;
-                }
+    }
