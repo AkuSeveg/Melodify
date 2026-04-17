@@ -2,35 +2,29 @@ const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');
 const resultsGrid = document.getElementById('resultsGrid');
 const statusText = document.getElementById('statusText');
+const bottomPlayer = document.getElementById('bottomPlayer');
+const playPauseBtn = document.getElementById('playPauseBtn');
+const playIcon = document.getElementById('playIcon');
 
 let ytPlayer;
 let isPlaying = false;
 let progressInterval;
 let currentTrackInfo = {};
 
-// TRIK RAHASIA: Audio bisu untuk memaksa Android memunculkan Notifikasi Media
-const silentAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');
-silentAudio.loop = true;
-
 function onYouTubeIframeAPIReady() {
     ytPlayer = new YT.Player('yt-player-container', {
         height: '10',
         width: '10',
         videoId: '',
-        playerVars: {
-            'playsinline': 1,
-            'controls': 0,
-            'disablekb': 1
-        },
+        playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1 },
         events: {
-            'onReady': () => console.log("Mesin YouTube siap."),
+            'onReady': () => console.log("YT Player Ready"),
             'onStateChange': onPlayerStateChange
         }
     });
 }
 
 function onPlayerStateChange(event) {
-    const playIcon = document.getElementById('playIcon');
     if (event.data == YT.PlayerState.PLAYING) {
         isPlaying = true;
         playIcon.className = 'fas fa-pause';
@@ -42,61 +36,36 @@ function onPlayerStateChange(event) {
     }
 }
 
-const bottomPlayer = document.getElementById('bottomPlayer');
-const playPauseBtn = document.getElementById('playPauseBtn');
-
 window.playTrack = function(videoId, title, artist, thumb) {
-    bottomPlayer.classList.remove('hidden');
-    
-    currentTrackInfo = { title, artist, thumb };
+    bgEngine.forceBackgroundUnlock();
 
+    bottomPlayer.classList.remove('hidden');
+    currentTrackInfo = { title, artist, thumb };
+    
     document.getElementById('player-title').innerText = title;
     document.getElementById('player-artist').innerText = artist;
     document.getElementById('player-thumb').src = thumb;
     
-    // Putar audio bisu untuk memancing notifikasi Android
-    silentAudio.play().catch(e => console.log("Silent audio standby"));
-
     if (ytPlayer && ytPlayer.loadVideoById) {
         ytPlayer.loadVideoById(videoId);
         ytPlayer.playVideo();
     }
 
-    setupMediaSession();
-}
-
-function setupMediaSession() {
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: currentTrackInfo.title,
-            artist: currentTrackInfo.artist,
-            album: 'Melodify',
-            artwork: [
-                { src: currentTrackInfo.thumb, sizes: '96x96', type: 'image/jpeg' },
-                { src: currentTrackInfo.thumb, sizes: '256x256', type: 'image/jpeg' },
-                { src: currentTrackInfo.thumb, sizes: '512x512', type: 'image/jpeg' }
-            ]
-        });
-
-        navigator.mediaSession.setActionHandler('play', () => {
-            if (ytPlayer) ytPlayer.playVideo();
-            silentAudio.play();
-        });
-        navigator.mediaSession.setActionHandler('pause', () => {
-            if (ytPlayer) ytPlayer.pauseVideo();
-            silentAudio.pause();
-        });
-    }
+    bgEngine.setMediaSession(
+        currentTrackInfo, 
+        () => { if (ytPlayer) ytPlayer.playVideo(); }, 
+        () => { if (ytPlayer) ytPlayer.pauseVideo(); } 
+    );
 }
 
 playPauseBtn.addEventListener('click', () => {
     if (!ytPlayer) return;
     if (isPlaying) {
         ytPlayer.pauseVideo();
-        silentAudio.pause();
+        bgEngine.pauseBackground();
     } else {
         ytPlayer.playVideo();
-        silentAudio.play();
+        bgEngine.forceBackgroundUnlock();
     }
 });
 
@@ -115,22 +84,12 @@ function startProgressBar() {
 }
 
 window.showSection = function(section) {
-    const homeSection = document.getElementById('home-section');
-    const aboutSection = document.getElementById('about-section');
-
-    if (section === 'about') {
-        homeSection.classList.add('hidden');
-        aboutSection.classList.remove('hidden');
-    } else {
-        homeSection.classList.remove('hidden');
-        aboutSection.classList.add('hidden');
-    }
+    document.getElementById('home-section').classList.toggle('hidden', section !== 'home');
+    document.getElementById('about-section').classList.toggle('hidden', section !== 'about');
 }
 
 searchBtn.addEventListener('click', performSearch);
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') performSearch();
-});
+searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
 
 async function performSearch() {
     const query = searchInput.value.trim();
@@ -144,14 +103,8 @@ async function performSearch() {
         const result = await response.json();
 
         resultsGrid.innerHTML = ''; 
-
-        if (result.status === "FAILED" || result.error) {
-            showError("Gagal menghubungi database.");
-            return;
-        }
-
-        if (!Array.isArray(result) || result.length === 0) {
-            showError("Tidak ada lagu yang ditemukan.");
+        if (result.status === "FAILED" || result.error || !Array.isArray(result) || result.length === 0) {
+            showError("Tidak ada lagu yang ditemukan atau server sibuk.");
             return;
         }
 
@@ -175,14 +128,12 @@ async function performSearch() {
                 </button>
             `;
 
-            const btn = card.querySelector('.play-btn');
-            btn.addEventListener('click', () => {
+            card.querySelector('.play-btn').addEventListener('click', () => {
                 playTrack(track.id, track.title, track.artist, track.thumbnail);
             });
 
             resultsGrid.appendChild(card);
         });
-
     } catch (err) {
         showError("Koneksi ke server terputus.");
     }
@@ -212,4 +163,4 @@ function showError(msg) {
             <h3 style="color: var(--text-primary); font-weight: 500; font-size: 1.1rem;">${msg}</h3>
         </div>
     `;
-  }
+        }
