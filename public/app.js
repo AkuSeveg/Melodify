@@ -9,8 +9,8 @@ let progressInterval;
 
 function onYouTubeIframeAPIReady() {
     ytPlayer = new YT.Player('yt-player-container', {
-        height: '1',
-        width: '1',
+        height: '300',
+        width: '300',
         videoId: '',
         playerVars: {
             'playsinline': 1,
@@ -89,6 +89,13 @@ playPauseBtn.addEventListener('click', () => {
     }
 });
 
+// Auto-play recovery hack untuk Browser HP
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && isPlaying === false && ytPlayer) {
+        // Kadang browser memaksa pause saat pindah tab, kita deteksi saat user kembali
+    }
+});
+
 function startProgressBar() {
     clearInterval(progressInterval);
     progressInterval = setInterval(() => {
@@ -99,17 +106,9 @@ function startProgressBar() {
             if (duration > 0) {
                 const percent = (current / duration) * 100;
                 document.getElementById('progressBarFill').style.width = `${percent}%`;
-                document.getElementById('currentTime').innerText = formatTime(current);
-                document.getElementById('totalTime').innerText = formatTime(duration);
             }
         }
     }, 1000);
-}
-
-function formatTime(time) {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
 window.showSection = function(section) {
@@ -171,7 +170,7 @@ async function performSearch() {
                 <div class="track-title" title="${safeTitle}">${track.title}</div>
                 <div class="track-artist">${track.artist}</div>
                 <button onclick="playTrack('${track.id}', '${safeTitle}', '${safeArtist}', '${track.thumbnail}')" class="play-btn">
-                    <i class="fas fa-play"></i> Putar Lagu
+                    <i class="fas fa-play"></i>
                 </button>
             `;
             resultsGrid.appendChild(card);
@@ -204,4 +203,4 @@ function showError(msg) {
             <h3 style="color: var(--text-primary); font-weight: 500; font-size: 1.2rem;">${msg}</h3>
         </div>
     `;
-    }
+                }
