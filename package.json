@@ -13,7 +13,7 @@
     "spotify-clone",
     "api"
   ],
-  "author": "Dapa",
+  "author": "Yoanz",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
