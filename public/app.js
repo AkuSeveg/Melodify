@@ -2,9 +2,17 @@ const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');
 const resultsGrid = document.getElementById('resultsGrid');
 const statusText = document.getElementById('statusText');
+
 const bottomPlayer = document.getElementById('bottomPlayer');
 const playPauseBtn = document.getElementById('playPauseBtn');
 const playIcon = document.getElementById('playIcon');
+
+// Full Screen Elements
+const fullScreenPlayer = document.getElementById('fullScreenPlayer');
+const openFullPlayerBtn = document.getElementById('openFullPlayerBtn');
+const closeFullPlayerBtn = document.getElementById('closeFullPlayerBtn');
+const fullPlayPauseBtn = document.getElementById('fullPlayPauseBtn');
+const fullPlayIcon = document.getElementById('fullPlayIcon');
 
 let ytPlayer;
 let isPlaying = false;
@@ -28,10 +36,12 @@ function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING) {
         isPlaying = true;
         playIcon.className = 'fas fa-pause';
+        fullPlayIcon.className = 'fas fa-pause';
         startProgressBar();
     } else {
         isPlaying = false;
         playIcon.className = 'fas fa-play';
+        fullPlayIcon.className = 'fas fa-play';
         clearInterval(progressInterval);
     }
 }
@@ -42,9 +52,17 @@ window.playTrack = function(videoId, title, artist, thumb) {
     bottomPlayer.classList.remove('hidden');
     currentTrackInfo = { title, artist, thumb };
     
+    // Update Bottom Player
     document.getElementById('player-title').innerText = title;
     document.getElementById('player-artist').innerText = artist;
     document.getElementById('player-thumb').src = thumb;
+
+    // Update Full Screen Player
+    document.getElementById('full-player-title').innerText = title;
+    document.getElementById('full-player-artist').innerText = artist;
+    // Attempt to load higher resolution thumb for full screen
+    const hqThumb = thumb.replace('sddefault', 'maxresdefault').replace('hqdefault', 'maxresdefault');
+    document.getElementById('full-player-thumb').src = hqThumb;
     
     if (ytPlayer && ytPlayer.loadVideoById) {
         ytPlayer.loadVideoById(videoId);
@@ -58,7 +76,7 @@ window.playTrack = function(videoId, title, artist, thumb) {
     );
 }
 
-playPauseBtn.addEventListener('click', () => {
+function togglePlayPause() {
     if (!ytPlayer) return;
     if (isPlaying) {
         ytPlayer.pauseVideo();
@@ -67,6 +85,21 @@ playPauseBtn.addEventListener('click', () => {
         ytPlayer.playVideo();
         bgEngine.forceBackgroundUnlock();
     }
+}
+
+playPauseBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    togglePlayPause();
+});
+
+fullPlayPauseBtn.addEventListener('click', togglePlayPause);
+
+openFullPlayerBtn.addEventListener('click', () => {
+    fullScreenPlayer.classList.add('active');
+});
+
+closeFullPlayerBtn.addEventListener('click', () => {
+    fullScreenPlayer.classList.remove('active');
 });
 
 function startProgressBar() {
@@ -77,10 +110,23 @@ function startProgressBar() {
             const duration = ytPlayer.getDuration();
             if (duration > 0) {
                 const percent = (current / duration) * 100;
+                
+                // Bottom player
                 document.getElementById('progressBarFill').style.width = `${percent}%`;
+                
+                // Full screen player
+                document.getElementById('fullProgressBarFill').style.width = `${percent}%`;
+                document.getElementById('fullCurrentTime').innerText = formatTime(current);
+                document.getElementById('fullTotalTime').innerText = formatTime(duration);
             }
         }
     }, 1000);
+}
+
+function formatTime(time) {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
 window.showSection = function(section) {
@@ -163,4 +209,4 @@ function showError(msg) {
             <h3 style="color: var(--text-primary); font-weight: 500; font-size: 1.1rem;">${msg}</h3>
         </div>
     `;
-        }
+    }
