@@ -1,5 +1,5 @@
 :root {
-    --bg-main: #121212;
+    --bg-main: #0a0a0a;
     --bg-elevated: #181818;
     --bg-highlight: #282828;
     --accent: #1DB954;
@@ -89,7 +89,6 @@ body {
 .container { padding: 0 5% 80px; max-width: 1200px; margin: 0 auto; }
 .section-title { font-size: 1.2rem; color: var(--text-primary); margin-bottom: 20px; font-weight: 700; }
 
-/* TATA LETAK DESKTOP */
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -117,12 +116,10 @@ body {
 }
 .play-btn:hover { background: var(--accent-bright); transform: scale(1.02); }
 
-/* ABOUT SECTION */
 .hidden { display: none !important; }
 .about-content { display: flex; justify-content: center; padding: 40px 0; animation: fadeInDown 0.5s ease; }
 .dev-card { background: var(--bg-elevated); padding: 40px 30px; border-radius: 12px; text-align: center; width: 100%; max-width: 450px; }
 .dev-img { width: 100px; height: 100px; background: var(--accent); color: black; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; font-weight: 700; }
-.dev-card h2 { margin-bottom: 5px; }
 .tagline { color: var(--accent); font-size: 0.9rem; margin-bottom: 25px; text-transform: uppercase; font-weight: 600; }
 .tech-stack { text-align: left; background: var(--bg-highlight); padding: 20px; border-radius: 8px; }
 .tech-stack h3 { font-size: 1rem; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
@@ -155,14 +152,209 @@ body {
 
 .player-volume { width: 30%; display: flex; justify-content: flex-end; color: var(--text-secondary); }
 
+/* FULL SCREEN PLAYER */
+.full-screen-player {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(to bottom, #2b2b2b 0%, #0a0a0a 100%);
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.full-screen-player.active {
+    transform: translateY(0);
+}
+
+.full-player-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0 30px;
+}
+
+.full-player-header button {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.now-playing-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+}
+
+.full-player-artwork {
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 1/1;
+    margin: 0 auto 40px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+.full-player-artwork img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.full-player-info {
+    margin-bottom: 30px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+.full-player-info h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.full-player-info p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.full-player-progress {
+    max-width: 400px;
+    margin: 0 auto 30px;
+    width: 100%;
+}
+
+.full-player-progress .progress-bar-bg {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    position: relative;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.full-player-progress .progress-bar-fill {
+    height: 100%;
+    background: white;
+    border-radius: 2px;
+    width: 0%;
+    position: relative;
+}
+
+.full-player-progress .progress-thumb {
+    position: absolute;
+    right: -5px;
+    top: -4px;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    display: none;
+}
+
+.full-player-progress .progress-bar-bg:hover .progress-thumb {
+    display: block;
+}
+
+.full-player-progress .progress-bar-bg:hover .progress-bar-fill {
+    background: var(--accent);
+}
+
+.progress-time-wrapper {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.full-player-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 400px;
+    margin: 0 auto 40px;
+    width: 100%;
+}
+
+.full-player-controls button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.full-player-controls button:active {
+    transform: scale(0.9);
+}
+
+.secondary-btn i { font-size: 1.2rem; color: var(--text-secondary); }
+.primary-btn i { font-size: 2rem; color: white; }
+
+.play-circle-large {
+    width: 70px;
+    height: 70px;
+    background: white !important;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.play-circle-large i {
+    font-size: 1.8rem;
+    color: black;
+    margin-left: 5px;
+}
+
+.full-player-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: auto;
+    padding-bottom: 20px;
+}
+
+.full-player-tabs .tab {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    cursor: pointer;
+    padding-bottom: 5px;
+}
+
+.full-player-tabs .tab.active {
+    color: white;
+    border-bottom: 2px solid white;
+}
+
 /* SKELETON */
 .skeleton { animation: pulse 1.5s infinite; }
 @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
-/* =========================================
-   TATA LETAK KHUSUS HP (SPOTIFY MOBILE LIST)
-   ========================================= */
+/* MOBILE RESPONSIVE */
 @media (max-width: 768px) {
     body { padding-bottom: 70px; }
     .hero { padding: 30px 15px; }
@@ -180,18 +372,19 @@ body {
     .track-title { font-size: 1rem; font-weight: 500; }
     .track-artist { font-size: 0.85rem; }
 
-    /* Tombol Play List: Dihilangkan teksnya, sisa icon tembus pandang */
     .play-btn {
         width: 40px; height: 40px; background: transparent; color: var(--text-secondary); padding: 0; margin-top: 0; font-size: 1.2rem; display: flex; justify-content: center; align-items: center;
     }
     .play-btn span { display: none; }
     .play-btn:hover { background: transparent; color: white; transform: scale(1.1); }
 
-    /* Bottom Player Mobile */
     .bottom-player { padding: 8px 15px; border-radius: 8px 8px 0 0; }
     .player-info { flex: 1; min-width: 0; }
-    .player-controls { flex: none; width: auto; }
-    .control-buttons { gap: 15px; }
-    #prevBtn, #nextBtn, .player-volume { display: none; }
+    .desktop-only { display: none !important; }
     .play-circle { font-size: 1.8rem !important; background: transparent !important; }
-    }
+
+    .full-player-artwork { margin-bottom: 30px; }
+    .full-player-controls { margin-bottom: 20px; }
+    .play-circle-large { width: 60px; height: 60px; }
+    .play-circle-large i { font-size: 1.5rem; }
+                            }
