@@ -54,6 +54,29 @@ window.playTrack = function(videoId, title, artist, thumb) {
     if (ytPlayer && ytPlayer.loadVideoById) {
         ytPlayer.loadVideoById(videoId);
     }
+
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: title,
+            artist: artist,
+            album: 'Melodify',
+            artwork: [
+                { src: thumb, sizes: '96x96',   type: 'image/jpeg' },
+                { src: thumb, sizes: '128x128', type: 'image/jpeg' },
+                { src: thumb, sizes: '192x192', type: 'image/jpeg' },
+                { src: thumb, sizes: '256x256', type: 'image/jpeg' },
+                { src: thumb, sizes: '384x384', type: 'image/jpeg' },
+                { src: thumb, sizes: '512x512', type: 'image/jpeg' },
+            ]
+        });
+
+        navigator.mediaSession.setActionHandler('play', function() {
+            ytPlayer.playVideo();
+        });
+        navigator.mediaSession.setActionHandler('pause', function() {
+            ytPlayer.pauseVideo();
+        });
+    }
 }
 
 playPauseBtn.addEventListener('click', () => {
@@ -181,4 +204,4 @@ function showError(msg) {
             <h3 style="color: var(--text-primary); font-weight: 500; font-size: 1.2rem;">${msg}</h3>
         </div>
     `;
-                            }
+    }
