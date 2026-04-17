@@ -9,24 +9,19 @@ let progressInterval;
 
 function onYouTubeIframeAPIReady() {
     ytPlayer = new YT.Player('yt-player-container', {
-        height: '300',
-        width: '300',
+        height: '10',
+        width: '10',
         videoId: '',
         playerVars: {
             'playsinline': 1,
             'controls': 0,
-            'disablekb': 1,
-            'autoplay': 1
+            'disablekb': 1
         },
         events: {
-            'onReady': onPlayerReady,
+            'onReady': () => console.log("Mesin YouTube siap."),
             'onStateChange': onPlayerStateChange
         }
     });
-}
-
-function onPlayerReady(event) {
-    console.log("Mesin YouTube siap.");
 }
 
 function onPlayerStateChange(event) {
@@ -35,7 +30,6 @@ function onPlayerStateChange(event) {
         isPlaying = true;
         playIcon.className = 'fas fa-pause';
         startProgressBar();
-        setupMediaSession(); // Perbarui sesi media saat mulai memutar
     } else {
         isPlaying = false;
         playIcon.className = 'fas fa-play';
@@ -48,6 +42,7 @@ const playPauseBtn = document.getElementById('playPauseBtn');
 
 let currentTrackInfo = {};
 
+// Fungsi Play yang aman dan kuat
 window.playTrack = function(videoId, title, artist, thumb) {
     bottomPlayer.classList.remove('hidden');
     
@@ -59,34 +54,27 @@ window.playTrack = function(videoId, title, artist, thumb) {
     
     if (ytPlayer && ytPlayer.loadVideoById) {
         ytPlayer.loadVideoById(videoId);
+        ytPlayer.playVideo(); // Memaksa browser HP untuk memutar karena ini di-trigger oleh klik user
     }
-}
 
-function setupMediaSession() {
-    if ('mediaSession' in navigator && currentTrackInfo.title) {
+    if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
-            title: currentTrackInfo.title,
-            artist: currentTrackInfo.artist,
+            title: title,
+            artist: artist,
             album: 'Melodify',
             artwork: [
-                { src: currentTrackInfo.thumb, sizes: '96x96',   type: 'image/jpeg' },
-                { src: currentTrackInfo.thumb, sizes: '256x256', type: 'image/jpeg' },
-                { src: currentTrackInfo.thumb, sizes: '512x512', type: 'image/jpeg' }
+                { src: thumb, sizes: '96x96', type: 'image/jpeg' },
+                { src: thumb, sizes: '512x512', type: 'image/jpeg' }
             ]
         });
 
-        navigator.mediaSession.setActionHandler('play', function() {
-            if (ytPlayer) ytPlayer.playVideo();
-        });
-        navigator.mediaSession.setActionHandler('pause', function() {
-            if (ytPlayer) ytPlayer.pauseVideo();
-        });
+        navigator.mediaSession.setActionHandler('play', () => ytPlayer.playVideo());
+        navigator.mediaSession.setActionHandler('pause', () => ytPlayer.pauseVideo());
     }
 }
 
 playPauseBtn.addEventListener('click', () => {
     if (!ytPlayer) return;
-    
     if (isPlaying) {
         ytPlayer.pauseVideo();
     } else {
@@ -100,7 +88,6 @@ function startProgressBar() {
         if (ytPlayer && ytPlayer.getCurrentTime && ytPlayer.getDuration) {
             const current = ytPlayer.getCurrentTime();
             const duration = ytPlayer.getDuration();
-            
             if (duration > 0) {
                 const percent = (current / duration) * 100;
                 document.getElementById('progressBarFill').style.width = `${percent}%`;
@@ -141,7 +128,7 @@ async function performSearch() {
         resultsGrid.innerHTML = ''; 
 
         if (result.status === "FAILED" || result.error) {
-            showError(result.error || "Gagal menghubungi database.");
+            showError("Gagal menghubungi database.");
             return;
         }
 
@@ -157,22 +144,26 @@ async function performSearch() {
             const card = document.createElement('div');
             card.className = 'track-card';
             
-            const safeTitle = track.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            const safeArtist = track.artist.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-
+            // CARA BARU YANG 100% AMAN (ANTI-ERROR KARAKTER KUTIP)
             card.innerHTML = `
                 <div class="thumbnail-wrapper">
-                    <img src="${track.thumbnail}" alt="${safeTitle}" class="track-img" loading="lazy">
-                    <span class="duration-badge">${track.duration.timestamp}</span>
+                    <img src="${track.thumbnail}" alt="Cover" class="track-img" loading="lazy">
                 </div>
                 <div class="track-info">
-                    <div class="track-title" title="${safeTitle}">${track.title}</div>
+                    <div class="track-title">${track.title}</div>
                     <div class="track-artist">${track.artist}</div>
                 </div>
-                <button onclick="playTrack('${track.id}', '${safeTitle}', '${safeArtist}', '${track.thumbnail}')" class="play-btn">
+                <button class="play-btn">
                     <i class="fas fa-play"></i><span>Putar Lagu</span>
                 </button>
             `;
+
+            // Pasang event listener langsung ke tombol (Mencegah bug HTML pecah)
+            const btn = card.querySelector('.play-btn');
+            btn.addEventListener('click', () => {
+                playTrack(track.id, track.title, track.artist, track.thumbnail);
+            });
+
             resultsGrid.appendChild(card);
         });
 
@@ -189,10 +180,10 @@ function showSkeletons() {
         card.innerHTML = `
             <div class="thumbnail-wrapper"></div>
             <div class="track-info">
-                <div class="track-title"></div>
-                <div class="track-artist"></div>
+                <div class="track-title" style="background:#333; height:15px; width:70%; margin-bottom:5px;"></div>
+                <div class="track-artist" style="background:#333; height:10px; width:40%;"></div>
             </div>
-            <div class="play-btn" style="border: none;"></div>
+            <div class="play-btn" style="background:transparent;"></div>
         `;
         resultsGrid.appendChild(card);
     }
