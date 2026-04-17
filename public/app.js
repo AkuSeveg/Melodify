@@ -21,13 +21,19 @@ let currentTrackInfo = {};
 
 function onYouTubeIframeAPIReady() {
     ytPlayer = new YT.Player('yt-player-container', {
-        height: '10',
-        width: '10',
+        height: '300', // HARUS 300 agar tidak diblokir YouTube
+        width: '300',
         videoId: '',
-        playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1 },
+        playerVars: { 
+            'playsinline': 1, 
+            'controls': 0, 
+            'disablekb': 1,
+            'origin': window.location.origin // Mencegah pemblokiran keamanan Browser
+        },
         events: {
             'onReady': () => console.log("YT Player Ready"),
-            'onStateChange': onPlayerStateChange
+            'onStateChange': onPlayerStateChange,
+            'onError': (e) => console.error("YT Player Error:", e.data)
         }
     });
 }
@@ -38,7 +44,7 @@ function onPlayerStateChange(event) {
         playIcon.className = 'fas fa-pause';
         fullPlayIcon.className = 'fas fa-pause';
         startProgressBar();
-    } else {
+    } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.ENDED) {
         isPlaying = false;
         playIcon.className = 'fas fa-play';
         fullPlayIcon.className = 'fas fa-play';
@@ -47,43 +53,48 @@ function onPlayerStateChange(event) {
 }
 
 window.playTrack = function(videoId, title, artist, thumb) {
-    bgEngine.forceBackgroundUnlock();
+    // 1. Pancing Audio Bisu
+    if (typeof bgEngine !== 'undefined') {
+        bgEngine.forceBackgroundUnlock();
+    }
 
+    // 2. Munculkan Player UI
     bottomPlayer.classList.remove('hidden');
     currentTrackInfo = { title, artist, thumb };
     
-    // Update Bottom Player
     document.getElementById('player-title').innerText = title;
     document.getElementById('player-artist').innerText = artist;
     document.getElementById('player-thumb').src = thumb;
 
-    // Update Full Screen Player
     document.getElementById('full-player-title').innerText = title;
     document.getElementById('full-player-artist').innerText = artist;
-    // Attempt to load higher resolution thumb for full screen
     const hqThumb = thumb.replace('sddefault', 'maxresdefault').replace('hqdefault', 'maxresdefault');
     document.getElementById('full-player-thumb').src = hqThumb;
     
+    // 3. Putar Lagu Asli
     if (ytPlayer && ytPlayer.loadVideoById) {
         ytPlayer.loadVideoById(videoId);
         ytPlayer.playVideo();
     }
 
-    bgEngine.setMediaSession(
-        currentTrackInfo, 
-        () => { if (ytPlayer) ytPlayer.playVideo(); }, 
-        () => { if (ytPlayer) ytPlayer.pauseVideo(); } 
-    );
+    // 4. Set Notifikasi Layar Kunci
+    if (typeof bgEngine !== 'undefined') {
+        bgEngine.setMediaSession(
+            currentTrackInfo, 
+            () => { if (ytPlayer) ytPlayer.playVideo(); }, 
+            () => { if (ytPlayer) ytPlayer.pauseVideo(); } 
+        );
+    }
 }
 
 function togglePlayPause() {
     if (!ytPlayer) return;
     if (isPlaying) {
         ytPlayer.pauseVideo();
-        bgEngine.pauseBackground();
+        if (typeof bgEngine !== 'undefined') bgEngine.pauseBackground();
     } else {
         ytPlayer.playVideo();
-        bgEngine.forceBackgroundUnlock();
+        if (typeof bgEngine !== 'undefined') bgEngine.forceBackgroundUnlock();
     }
 }
 
@@ -111,10 +122,7 @@ function startProgressBar() {
             if (duration > 0) {
                 const percent = (current / duration) * 100;
                 
-                // Bottom player
                 document.getElementById('progressBarFill').style.width = `${percent}%`;
-                
-                // Full screen player
                 document.getElementById('fullProgressBarFill').style.width = `${percent}%`;
                 document.getElementById('fullCurrentTime').innerText = formatTime(current);
                 document.getElementById('fullTotalTime').innerText = formatTime(duration);
@@ -124,6 +132,7 @@ function startProgressBar() {
 }
 
 function formatTime(time) {
+    if (!time || isNaN(time)) return "0:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
@@ -170,7 +179,7 @@ async function performSearch() {
                     <div class="track-artist">${track.artist}</div>
                 </div>
                 <button class="play-btn">
-                    <i class="fas fa-play"></i><span>Putar Lagu</span>
+                    <i class="fas fa-play"></i><span>Putar</span>
                 </button>
             `;
 
