@@ -6,6 +6,11 @@ const statusText = document.getElementById('statusText');
 let ytPlayer;
 let isPlaying = false;
 let progressInterval;
+let currentTrackInfo = {};
+
+// TRIK RAHASIA: Audio bisu untuk memaksa Android memunculkan Notifikasi Media
+const silentAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');
+silentAudio.loop = true;
 
 function onYouTubeIframeAPIReady() {
     ytPlayer = new YT.Player('yt-player-container', {
@@ -40,9 +45,6 @@ function onPlayerStateChange(event) {
 const bottomPlayer = document.getElementById('bottomPlayer');
 const playPauseBtn = document.getElementById('playPauseBtn');
 
-let currentTrackInfo = {};
-
-// Fungsi Play yang aman dan kuat
 window.playTrack = function(videoId, title, artist, thumb) {
     bottomPlayer.classList.remove('hidden');
     
@@ -52,24 +54,38 @@ window.playTrack = function(videoId, title, artist, thumb) {
     document.getElementById('player-artist').innerText = artist;
     document.getElementById('player-thumb').src = thumb;
     
+    // Putar audio bisu untuk memancing notifikasi Android
+    silentAudio.play().catch(e => console.log("Silent audio standby"));
+
     if (ytPlayer && ytPlayer.loadVideoById) {
         ytPlayer.loadVideoById(videoId);
-        ytPlayer.playVideo(); // Memaksa browser HP untuk memutar karena ini di-trigger oleh klik user
+        ytPlayer.playVideo();
     }
 
+    setupMediaSession();
+}
+
+function setupMediaSession() {
     if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
-            title: title,
-            artist: artist,
+            title: currentTrackInfo.title,
+            artist: currentTrackInfo.artist,
             album: 'Melodify',
             artwork: [
-                { src: thumb, sizes: '96x96', type: 'image/jpeg' },
-                { src: thumb, sizes: '512x512', type: 'image/jpeg' }
+                { src: currentTrackInfo.thumb, sizes: '96x96', type: 'image/jpeg' },
+                { src: currentTrackInfo.thumb, sizes: '256x256', type: 'image/jpeg' },
+                { src: currentTrackInfo.thumb, sizes: '512x512', type: 'image/jpeg' }
             ]
         });
 
-        navigator.mediaSession.setActionHandler('play', () => ytPlayer.playVideo());
-        navigator.mediaSession.setActionHandler('pause', () => ytPlayer.pauseVideo());
+        navigator.mediaSession.setActionHandler('play', () => {
+            if (ytPlayer) ytPlayer.playVideo();
+            silentAudio.play();
+        });
+        navigator.mediaSession.setActionHandler('pause', () => {
+            if (ytPlayer) ytPlayer.pauseVideo();
+            silentAudio.pause();
+        });
     }
 }
 
@@ -77,8 +93,10 @@ playPauseBtn.addEventListener('click', () => {
     if (!ytPlayer) return;
     if (isPlaying) {
         ytPlayer.pauseVideo();
+        silentAudio.pause();
     } else {
         ytPlayer.playVideo();
+        silentAudio.play();
     }
 });
 
@@ -144,7 +162,6 @@ async function performSearch() {
             const card = document.createElement('div');
             card.className = 'track-card';
             
-            // CARA BARU YANG 100% AMAN (ANTI-ERROR KARAKTER KUTIP)
             card.innerHTML = `
                 <div class="thumbnail-wrapper">
                     <img src="${track.thumbnail}" alt="Cover" class="track-img" loading="lazy">
@@ -158,7 +175,6 @@ async function performSearch() {
                 </button>
             `;
 
-            // Pasang event listener langsung ke tombol (Mencegah bug HTML pecah)
             const btn = card.querySelector('.play-btn');
             btn.addEventListener('click', () => {
                 playTrack(track.id, track.title, track.artist, track.thumbnail);
