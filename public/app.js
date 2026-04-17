@@ -212,4 +212,4 @@ function showError(msg) {
             <h3 style="color: var(--text-primary); font-weight: 500; font-size: 1.1rem;">${msg}</h3>
         </div>
     `;
-    }
+                }
