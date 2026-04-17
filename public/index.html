@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melodify | Discover Your Rhythm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo" onclick="location.reload()">
+            <img src="assets/logo.png" alt="M" onerror="this.style.display='none'">
+            <i class="fas fa-headphones-alt" id="logo-icon"></i> Melodify
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" onclick="showSection('home')">Home</a></li>
+            <li><a href="#" onclick="showSection('about')">About</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        
+        <section id="home-section">
+            <header class="hero">
+                <h1>Temukan Musikmu</h1>
+                <p>Cari jutaan lagu resmi dari database YouTube Music</p>
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Ketik judul lagu atau artis..." autocomplete="off">
+                    <button id="searchBtn"><i class="fas fa-search"></i></button>
+                </div>
+            </header>
+
+            <h2 class="section-title" id="statusText">Terbaru untuk Anda</h2>
+            <div id="resultsGrid" class="grid"></div>
+        </section>
+
+        <section id="about-section" class="hidden">
+            <div class="about-content">
+                <div class="dev-card">
+                    <div class="dev-img">D</div>
+                    <h2>By Dapa 😈</h2>
+                    <p class="tagline">Visionary Developer</p>
+                    
+                    <div class="tech-stack">
+                        <h3>Tech Stack</h3>
+                        <ul>
+                            <li><i class="fab fa-node-js"></i> Node.js (Runtime)</li>
+                            <li><i class="fas fa-server"></i> Express (Backend)</li>
+                            <li><i class="fas fa-database"></i> yt-search (Scraper API)</li>
+                            <li><i class="fab fa-js"></i> Vanilla JS (Frontend Logic)</li>
+                            <li><i class="fab fa-css3-alt"></i> Modern CSS (Spotify Theme)</li>
+                            <li><i class="fas fa-cloud"></i> Vercel (Serverless Deploy)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

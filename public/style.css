@@ -1,0 +1,355 @@
+:root {
+    --bg-main: #121212;
+    --bg-elevated: #181818;
+    --bg-highlight: #282828;
+    --accent: #1DB954;
+    --accent-bright: #1ed760;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* Efek cahaya hijau samar di latar belakang */
+.background-glow {
+    position: fixed;
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(29, 185, 84, 0.08) 0%, transparent 60%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 5%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.logo img {
+    height: 30px;
+    width: auto;
+    object-fit: contain;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: 0.3s ease;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.nav-links a:hover {
+    color: var(--text-primary);
+}
+
+.hero {
+    text-align: center;
+    padding: 80px 20px;
+    animation: fadeInDown 0.8s ease;
+}
+
+.hero h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    margin-bottom: 10px;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.hero p {
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    font-size: 1.1rem;
+}
+
+.search-container {
+    display: flex;
+    max-width: 650px;
+    margin: 0 auto;
+    background: var(--bg-highlight);
+    border-radius: 500px; /* Bentuk pil khas Spotify */
+    padding: 6px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.search-container:focus-within {
+    border-color: white;
+    background: #333333;
+}
+
+.search-container input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 15px 30px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+}
+
+.search-container input::placeholder {
+    color: var(--text-secondary);
+}
+
+.search-container button {
+    background: var(--text-primary);
+    border: none;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    color: black;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.search-container button:hover {
+    transform: scale(1.05);
+    background: var(--accent-bright);
+}
+
+.container {
+    padding: 20px 5% 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.section-title {
+    font-size: 1.4rem;
+    color: var(--text-primary);
+    margin-bottom: 30px;
+    text-align: left; /* Spotify biasanya rata kiri */
+    font-weight: 700;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 24px;
+}
+
+.track-card {
+    background: var(--bg-elevated);
+    border-radius: 8px; /* Sudut melengkung halus */
+    padding: 16px;
+    transition: background 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.track-card:hover {
+    background: var(--bg-highlight);
+}
+
+.thumbnail-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1/1; /* Kotak sempurna untuk cover album */
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+.track-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.duration-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 400;
+}
+
+.track-title {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.track-artist {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.play-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: black;
+    text-decoration: none;
+    padding: 12px;
+    border-radius: 500px;
+    font-weight: 700;
+    margin-top: auto;
+    transition: 0.2s;
+    opacity: 0; /* Sembunyikan tombol sebelum di-hover */
+    transform: translateY(10px);
+}
+
+.track-card:hover .play-btn {
+    opacity: 1; /* Munculkan tombol saat kartu di-hover */
+    transform: translateY(0);
+}
+
+.play-btn:hover {
+    background: var(--accent-bright);
+    transform: scale(1.04) !important;
+}
+
+.skeleton {
+    animation: pulse 1.5s infinite;
+}
+
+.skeleton .thumbnail-wrapper { background: #333; box-shadow: none; }
+.skeleton .track-title { height: 18px; background: #333; border-radius: 4px; margin-bottom: 8px; width: 80%; }
+.skeleton .track-artist { height: 14px; background: #333; border-radius: 4px; width: 50%; margin-bottom: 25px; }
+.skeleton .play-btn { background: #333; color: transparent; opacity: 1; transform: none; }
+
+@keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hidden { display: none !important; }
+
+.about-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    animation: fadeInDown 0.5s ease;
+}
+
+.dev-card {
+    background: var(--bg-elevated);
+    padding: 50px 40px;
+    border-radius: 12px;
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+}
+
+.dev-img {
+    width: 120px;
+    height: 120px;
+    background: var(--accent);
+    color: black;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    font-weight: 700;
+}
+
+.tagline {
+    color: var(--accent);
+    font-size: 0.9rem;
+    margin-bottom: 35px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.tech-stack {
+    text-align: left;
+    background: var(--bg-highlight);
+    padding: 25px;
+    border-radius: 8px;
+}
+
+.tech-stack h3 {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.tech-stack ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.tech-stack li {
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 0.95rem;
+}
+
+.tech-stack i {
+    color: var(--text-primary);
+    width: 25px;
+    font-size: 1.2rem;
+    text-align: center;
+}
