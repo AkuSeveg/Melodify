@@ -20,9 +20,9 @@ body {
     color: var(--text-primary);
     overflow-x: hidden;
     min-height: 100vh;
+    padding-bottom: 90px;
 }
 
-/* Efek cahaya hijau samar di latar belakang */
 .background-glow {
     position: fixed;
     top: -20%;
@@ -106,7 +106,7 @@ body {
     max-width: 650px;
     margin: 0 auto;
     background: var(--bg-highlight);
-    border-radius: 500px; /* Bentuk pil khas Spotify */
+    border-radius: 500px;
     padding: 6px;
     transition: all 0.3s ease;
     border: 2px solid transparent;
@@ -158,7 +158,7 @@ body {
     font-size: 1.4rem;
     color: var(--text-primary);
     margin-bottom: 30px;
-    text-align: left; /* Spotify biasanya rata kiri */
+    text-align: left;
     font-weight: 700;
 }
 
@@ -170,7 +170,7 @@ body {
 
 .track-card {
     background: var(--bg-elevated);
-    border-radius: 8px; /* Sudut melengkung halus */
+    border-radius: 8px;
     padding: 16px;
     transition: background 0.3s ease;
     display: flex;
@@ -185,7 +185,7 @@ body {
 .thumbnail-wrapper {
     position: relative;
     width: 100%;
-    aspect-ratio: 1/1; /* Kotak sempurna untuk cover album */
+    aspect-ratio: 1/1;
     border-radius: 4px;
     overflow: hidden;
     margin-bottom: 16px;
@@ -236,24 +236,26 @@ body {
     gap: 8px;
     background: var(--accent);
     color: black;
-    text-decoration: none;
+    border: none;
     padding: 12px;
     border-radius: 500px;
     font-weight: 700;
     margin-top: auto;
     transition: 0.2s;
-    opacity: 0; /* Sembunyikan tombol sebelum di-hover */
+    opacity: 0;
     transform: translateY(10px);
+    cursor: pointer;
+    width: 100%;
 }
 
 .track-card:hover .play-btn {
-    opacity: 1; /* Munculkan tombol saat kartu di-hover */
+    opacity: 1;
     transform: translateY(0);
 }
 
 .play-btn:hover {
     background: var(--accent-bright);
-    transform: scale(1.04) !important;
+    transform: scale(1.04);
 }
 
 .skeleton {
@@ -353,3 +355,129 @@ body {
     font-size: 1.2rem;
     text-align: center;
 }
+
+.bottom-player {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #181818;
+    border-top: 1px solid #282828;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    z-index: 2000;
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+}
+
+.bottom-player.hidden {
+    transform: translateY(100%);
+    display: flex !important;
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 30%;
+}
+
+.player-info img {
+    width: 56px;
+    height: 56px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.player-text .track-title {
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+}
+
+.player-text .track-artist {
+    font-size: 0.8rem;
+    margin-bottom: 0;
+}
+
+.player-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40%;
+    gap: 8px;
+}
+
+.control-buttons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.control-buttons button {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.control-buttons button:hover {
+    color: var(--text-primary);
+}
+
+.play-circle {
+    background: white !important;
+    color: black !important;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem !important;
+    transition: transform 0.2s !important;
+}
+
+.play-circle:hover {
+    transform: scale(1.1);
+}
+
+.progress-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.progress-bar-bg {
+    flex: 1;
+    height: 4px;
+    background: #4d4d4d;
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: var(--text-primary);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+.progress-bar-bg:hover .progress-bar-fill {
+    background: var(--accent);
+}
+
+.player-volume {
+    width: 30%;
+    display: flex;
+    justify-content: flex-end;
+    color: var(--text-secondary);
+    }
